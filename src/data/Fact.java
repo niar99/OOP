@@ -11,13 +11,13 @@ public class Fact {
 		
 	}
 	
-	public Fact(String id, String subjectID, String objectID, String relationship, String date) {
-		this.setId(id);
-		this.setSubjectID(subjectID);
-		this.setObjectID(objectID);
-		this.setRelationship(relationship);
-		this.setDate(date);
-	}
+//	public Fact(String id, String subjectID, String objectID, String relationship, String date) {
+//		this.setId(id);
+//		this.setSubjectID(subjectID);
+//		this.setObjectID(objectID);
+//		this.setRelationship(relationship);
+//		this.setDate(date);
+//	}
 
 	public String getId() {
 		return id;

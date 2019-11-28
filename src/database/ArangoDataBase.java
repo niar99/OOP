@@ -9,8 +9,9 @@ import com.arangodb.ArangoDB;
 import com.arangodb.ArangoDBException;
 import com.arangodb.ArangoDatabase;
 import com.arangodb.entity.BaseDocument;
+import tobasedocument.ToBaseDocument;
 
-public class ArangoDataBase{
+public class ArangoDataBase extends DataBase implements ToBaseDocument{
 	protected ArangoDB arangoDB;
 	protected ArangoDatabase db;
 	protected ArangoCollection collection;
@@ -18,7 +19,7 @@ public class ArangoDataBase{
 	/** Constructs an ArangoDataBase with name = "root" and password = "0000"
 	 * 
 	 */
-	protected ArangoDataBase() {
+	public ArangoDataBase() {
 		this("root", "0000");
 	}
 	
@@ -27,7 +28,7 @@ public class ArangoDataBase{
 	 * @param name
 	 * @param pwd
 	 */
-	protected ArangoDataBase(String name, String pwd) {
+	public ArangoDataBase(String name, String pwd) {
 		this.setArangoDB(name, pwd);
 	}
 	
@@ -48,7 +49,8 @@ public class ArangoDataBase{
 	 * @param dbName
 	 * @return true if successful, false if failure
 	 */
-	protected boolean createDataBase(String dbName) {
+    @Override
+	public boolean createDataBase(String dbName) {
 		try {
 			this.arangoDB.createDatabase(dbName);
 			return true;
@@ -63,7 +65,8 @@ public class ArangoDataBase{
 	 * @param collectionName
 	 * @return true if successful, false if failure
 	 */
-	protected boolean createCollection(String dbName, String collectionName) {
+    @Override
+	public boolean createCollection(String dbName, String collectionName) {
 		try {
 			this.arangoDB.db(dbName).createCollection(collectionName);
 			return true;
@@ -79,8 +82,10 @@ public class ArangoDataBase{
 	 * @param document
 	 * @return true if successful, false if failure
 	 */
-	protected boolean createDocument(String dbName, String collectionName, BaseDocument document) {
+    @Override
+	public boolean createDocument(String dbName, String collectionName, Object object) {
 		try {
+            BaseDocument document = toBaseDocument(object);
 			this.arangoDB.db(dbName).collection(collectionName).insertDocument(document);
 			return true;
 		} catch (ArangoDBException e) {
@@ -95,8 +100,10 @@ public class ArangoDataBase{
 	 * @param documents
 	 * @return true if successful, false if failure
 	 */
-	protected boolean createDocument(String dbName, String collectionName, ArrayList<BaseDocument> documents) {
+    @Override
+	public boolean createDocument(String dbName, String collectionName, ArrayList<?> objects) {
 		try {
+            ArrayList<BaseDocument> documents = toBaseDocument(objects);
 			this.arangoDB.db(dbName).collection(collectionName).insertDocument(documents);
 			return true;
 		} catch (ArangoDBException e) {
@@ -111,10 +118,11 @@ public class ArangoDataBase{
 	 * @param bindVars
 	 * @return ArrayList of String for Json of the results
 	 */
-	protected ArrayList<String> executeAQLQuery(String dbName, String query, Map<String, Object> bindVars) {
+    @Override
+	public ArrayList<String> executeQuery(String dbName, String query) {
 		ArrayList<String> result = new ArrayList<String>();
 		try {
-			ArangoCursor<String> cursor = this.arangoDB.db(dbName).query(query, bindVars, null, String.class);
+			ArangoCursor<String> cursor = this.arangoDB.db(dbName).query(query, null, null, String.class);
 			cursor.forEachRemaining(aDocument -> {
 				result.add(aDocument);
 			});

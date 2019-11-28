@@ -1,7 +1,6 @@
 package data;
 
 public class Event extends Entity{
-    private String date;
 	public Event() {
 		
 	}
@@ -10,11 +9,4 @@ public class Event extends Entity{
 		super(id, name, description);
 	} 
     
-    public String getDate() {
-        return this.date;
-    }
-    
-    public void setDate(String date) {
-        this.date = date;
-    }
 }
