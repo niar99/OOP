@@ -24,9 +24,9 @@ import tobasedocument.ToBaseDocument;
 
 public class Test implements ToBaseDocument{
     Random ran = new Random();
-	public static void main(String[] args) throws IOException {
-		new Test();
-	}
+//	public static void main(String[] args) throws IOException {
+//		new Test();
+//	}
 	
 	public Test() throws IOException {
 //		Person entity1 = new Person("1", "name", "description", "male", "Vietnamese");
