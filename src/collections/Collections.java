@@ -11,7 +11,7 @@ public class Collections implements RandomDate{
         TO_CHUC,
         KY_THOA_THUAN,
         THAM_GIA,
-        DIEN_GIA_TAI,
+        DIEN_RA_TAI,
         UNG_HO,
         PHAN_DOI,
         PHAT_BIEU_TAI,
@@ -236,7 +236,7 @@ public class Collections implements RandomDate{
                     subjectID = this.randomEntityID(people, organizations);
                     objectID = this.randomEntityID(organizations, events, agreements);
                     break;
-                case DIEN_GIA_TAI:
+                case DIEN_RA_TAI:
                     subjectID = this.randomEntityID(events);
                     objectID = this.randomEntityID(locations, companies);
                     break;
