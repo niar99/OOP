@@ -1,55 +1,30 @@
 package database;
 
+import util.*;
 import java.util.ArrayList;
-import java.util.Map;
-
-import com.arangodb.ArangoCollection;
 import com.arangodb.ArangoCursor;
 import com.arangodb.ArangoDB;
 import com.arangodb.ArangoDBException;
-import com.arangodb.ArangoDatabase;
 import com.arangodb.entity.BaseDocument;
-import tobasedocument.ToBaseDocument;
+import com.arangodb.entity.CollectionType;
+import com.arangodb.model.CollectionCreateOptions;
 
-public class ArangoDataBase extends DataBase implements ToBaseDocument{
+public class ArangoDataBase implements IDatabaseManager {
 	protected ArangoDB arangoDB;
-	protected ArangoDatabase db;
-	protected ArangoCollection collection;
 
-	/** Constructs an ArangoDataBase with name = "root" and password = "0000"
-	 * 
-	 */
 	public ArangoDataBase() {
 		this("root", "0000");
 	}
-	
-	/** Constructs an ArangoDataBase with given name and password
-	 * 
-	 * @param name
-	 * @param pwd
-	 */
+
 	public ArangoDataBase(String name, String pwd) {
 		this.setArangoDB(name, pwd);
 	}
-	
+
 	protected void setArangoDB(String name, String pwd) {
 		this.arangoDB = new ArangoDB.Builder().user(name).password(pwd).build();
 	}
 
-	public void setDb(String dbName) {
-		this.db = this.arangoDB.db(dbName);
-	}
-
-	public void setCollection(String collectionName) {
-		this.collection = this.db.collection(collectionName);
-	}
-
-	/** Creates a database with given name
-	 * 
-	 * @param dbName
-	 * @return true if successful, false if failure
-	 */
-    @Override
+	@Override
 	public boolean createDataBase(String dbName) {
 		try {
 			this.arangoDB.createDatabase(dbName);
@@ -58,15 +33,9 @@ public class ArangoDataBase extends DataBase implements ToBaseDocument{
 			return false;
 		}
 	}
-	
-	/** Create a collection from database dbName with given name
-	 * 
-	 * @param dbName
-	 * @param collectionName
-	 * @return true if successful, false if failure
-	 */
-    @Override
-	public boolean createCollection(String dbName, String collectionName) {
+
+	@Override
+	public boolean createDocumentCollection(String dbName, String collectionName) {
 		try {
 			this.arangoDB.db(dbName).createCollection(collectionName);
 			return true;
@@ -75,50 +44,60 @@ public class ArangoDataBase extends DataBase implements ToBaseDocument{
 		}
 	}
 	
-	/** Inserts a document to collection collectionName in database dbName
-	 * 
-	 * @param dbName
-	 * @param collectionName
-	 * @param document
-	 * @return true if successful, false if failure
-	 */
-    @Override
+	@Override
+	public boolean createEdgeCollection(String dbName, String collectionName) {
+		try {
+			CollectionCreateOptions options = new CollectionCreateOptions();
+			this.arangoDB.db(dbName).createCollection(collectionName, options.type(CollectionType.EDGES));
+			return true;
+		} catch (ArangoDBException e) {
+			return false;
+		}
+	}
+
+	@Override
 	public boolean createDocument(String dbName, String collectionName, Object object) {
 		try {
-            BaseDocument document = toBaseDocument(object);
+			BaseDocument document = AppUtility.ToBaseDocument(object);
 			this.arangoDB.db(dbName).collection(collectionName).insertDocument(document);
 			return true;
 		} catch (ArangoDBException e) {
 			return false;
 		}
 	}
-	
-	/** Inserts a list of document to collection collectionName in database dbName
-	 * 
-	 * @param dbName
-	 * @param collectionName
-	 * @param documents
-	 * @return true if successful, false if failure
-	 */
-    @Override
+
+	@Override
+	public boolean dropDatabase(String dbName) {
+		try {
+			this.arangoDB.db(dbName).drop();
+			return true;
+		} catch (ArangoDBException e) {
+			return false;
+		}
+	}
+
+	@Override
+	public boolean dropCollection(String dbName, String collectionName) {
+		try {
+			this.arangoDB.db(dbName).collection(collectionName).drop();
+			return true;
+		} catch (ArangoDBException e) {
+			return false;
+		}
+	}
+
+	@Override
 	public boolean createDocument(String dbName, String collectionName, ArrayList<?> objects) {
 		try {
-            ArrayList<BaseDocument> documents = toBaseDocument(objects);
+			ArrayList<BaseDocument> documents = AppUtility.ToBaseDocument(objects);
 			this.arangoDB.db(dbName).collection(collectionName).insertDocument(documents);
 			return true;
 		} catch (ArangoDBException e) {
 			return false;
 		}
 	}
-	
-	/** Executes a query
-	 * 
-	 * @param dbName
-	 * @param query
-	 * @param bindVars
-	 * @return ArrayList of String for Json of the results
-	 */
-    @Override
+
+	@Override
 	public ArrayList<String> executeQuery(String dbName, String query) {
 		ArrayList<String> result = new ArrayList<String>();
 		try {
